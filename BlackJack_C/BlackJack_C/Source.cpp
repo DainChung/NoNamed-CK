@@ -7,6 +7,7 @@
 
 int Intro();
 int RandomNumGenerater(int value);
+//Ä¿¹Ô Å×½ºÆ®
 
 
 void main()

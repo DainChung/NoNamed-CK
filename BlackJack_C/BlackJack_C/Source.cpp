@@ -1,3 +1,4 @@
+#pragma warning(disable:4996)
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -7,10 +8,15 @@
 라고 써주셨으면 합니다.
 */
 
+struct card{
+	int cardShape = 0;//1 == ,스페이드, 2 == 클로버, 3 == 하트, 4 == 다이아
+	int cardNum = 0;
+};
+
 int Intro();
 int RandomNumGenerater(int value);
 int OnTheGame(int turn);
-void IsThereSameCard();
+int IsThereSameCard(struct card* , struct card*);
 
 void main()
 {
@@ -25,15 +31,18 @@ void main()
 	{
 		if (Intro() == 1)
 			break;
+		while (1){
+			if (OnTheGame(whosTurn) == 0){
+				printf("딜러가 승리하였습니다!\n==============================\n\n");
+				break;
+			}
 
-		if (OnTheGame(whosTurn) == 0){
-			printf("딜러가 승리하였습니다!\n");
-			continue;
+			else if (OnTheGame(whosTurn) == 1){
+				printf("사용자가 승리하였습니다!\n==============================\n\n");
+				break;
+			}
 		}
-		else if (OnTheGame(whosTurn) == 1){
-			printf("사용자가 승리하였습니다!\n");
-			continue;
-		}
+
 		whosTurn++;
 	}
 
@@ -44,7 +53,7 @@ void main()
 
 int Intro()
 {
-	int choice;
+	int choice = 0;
 
 	while (1)
 	{
@@ -55,7 +64,7 @@ int Intro()
 		if (choice == 0 || choice == 1)
 			break;
 		else
-			printf("다시 입력해주십시오.\n");
+			printf("다시 입력해주십시오.\n\n\n");
 	}
 
 	return choice;
@@ -67,71 +76,87 @@ int RandomNumGenerater(int value)
 
 	random = rand() % value + 1;
 
-	if (random >= 11)
-		random = 10;
-
 	return random;
 }
 
 int OnTheGame(int turn)
 {
 	//딜러가 받는 카드
-	int dillCardShape[10] = { 0 };//1 == ,스페이드, 2 == 클로버, 3 == 하트, 4 == 다이아
-	int dillCardNum[10] = { 0 };
+	struct card dillers[10];
 
 	static int dillCardIndex = 0;
 
 	//사용자가 받는 카드
-	int cardShape[10] = { 0 };
-	int cardNum[10] = { 0 };
+	struct card users[10];
 
 	static int userCardIndex = 0;
 
 	int sumOfCardNum = 0;
 
-	int whosWins = 0;// 0은 딜러 우승, 1은 사용자 우승
-	
+	int isSame = 0; //0은 같은 카드 없음, 1은 같은 카드 있음
+
+	int whosWin = 2;// 0은 딜러 우승, 1은 사용자 우승
+
 	//딜러가 먼저 시작
 	if (turn % 2 == 0){
 
-		//RandomNumGenerater에 4를 넣어 4가지의 임의의 수로 카드의 문양을 결정
-		dillCardShape[dillCardIndex] = RandomNumGenerater(4);
-		//RandomNumGenerater에 13을 넣어 13가지의 임의의 수로 카드의 수를 결정
-		dillCardNum[dillCardIndex] = RandomNumGenerater(4);
+		while (1){
+			//RandomNumGenerater에 4를 넣어 4가지의 임의의 수로 카드의 문양을 결정
+			dillers[dillCardIndex].cardShape = RandomNumGenerater(4);
+			//RandomNumGenerater에 13을 넣어 13가지의 임의의 수로 카드의 수를 결정
+			dillers[dillCardIndex].cardNum = RandomNumGenerater(13);
 
-		if (dillCardShape == 0 || dillCardNum == 0)
+			isSame = IsThereSameCard(dillers, users);
+
+			if (isSame == 0)
+				break;
+		}
+
+		if (dillers[dillCardIndex].cardShape == 0 || dillers[dillCardIndex].cardNum == 0)
 			printf("시스템 오류가 발생했습니다.\n");
 
 		//갖고 있는 카드의 수를 모두 더함
 		if (dillCardIndex >= 1){
 			for (int i = 0; i < dillCardIndex; i++){
-				sumOfCardNum += dillCardNum[i];
+				if (dillers[i].cardNum >= 11)
+					sumOfCardNum += 10;
+				else
+					sumOfCardNum += dillers[i].cardNum;
 			}
 		}
 
 		dillCardIndex++;
 	}
 	else{
-		//RandomNumGenerater에 4를 넣어 4가지의 임의의 수로 카드의 문양을 결정
-		cardShape[userCardIndex] = RandomNumGenerater(4);
-		//RandomNumGenerater에 13을 넣어 13가지의 임의의 수로 카드의 수를 결정
-		cardNum[userCardIndex] = RandomNumGenerater(4);
+		while (1){
+			//RandomNumGenerater에 4를 넣어 4가지의 임의의 수로 카드의 문양을 결정
+			users[userCardIndex].cardShape = RandomNumGenerater(4);
+			//RandomNumGenerater에 13을 넣어 13가지의 임의의 수로 카드의 수를 결정
+			users[userCardIndex].cardNum = RandomNumGenerater(13);
 
+			isSame = IsThereSameCard(dillers, users);
 
-		if (cardShape == 0 || cardNum == 0)
+			if (isSame == 0)
+				break;
+		}
+
+		if (users[userCardIndex].cardShape == 0 || users[userCardIndex].cardNum == 0)
 			printf("시스템 오류가 발생했습니다.\n");
+
+		
 
 		//갖고 있는 카드의 수를 모두 더함
 		if (userCardIndex >= 1){
 			for (int i = 0; i < userCardIndex; i++){
-				sumOfCardNum += cardNum[i];
+				if (users[i].cardNum >= 11)
+					sumOfCardNum += 10;
+				else
+					sumOfCardNum += users[i].cardNum;
 			}
 		}
 
 		userCardIndex++;
 	}
-
-		
 
 		//카드 수 합이 21을 넘는 쪽이 패배
 		//카드 수 합이 16 이상이면 카드를 더 받을지 말지를 결정.		
@@ -144,5 +169,22 @@ int OnTheGame(int turn)
 		딜러의 인공지능을 이 cpp파일 안에서 만들 것인지 다른 cpp파일을 만들고 거기에서 구현하고 여기로 가져다 쓸 것인지 의견 내주십시오.
 		*/
 
-		return whosWins;
+		
+
+	return 0;
+}
+
+int IsThereSameCard(struct card* pGivenCardDiller, struct card* pGivenCardUser)
+{
+	int isSame = 0;//0은 같은 카드 없음, 1은 같은 카드 있음
+
+	for (int i = 0; i < 10; i++)
+	{
+		if (pGivenCardDiller->cardShape != 0 && pGivenCardUser->cardShape != 0)//카드 모양 값이 0이 아니면(초기화된 값 그대로가 아니면)
+			if (pGivenCardDiller->cardShape == pGivenCardUser->cardShape)//카드 모양, 값 비교 
+				if (pGivenCardDiller->cardNum == pGivenCardUser->cardNum)
+					isSame = 1;
+	}
+
+	return isSame;
 }

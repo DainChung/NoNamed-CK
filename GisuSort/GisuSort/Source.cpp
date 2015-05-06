@@ -22,6 +22,8 @@ void main()
 	int dump;
 
 	//난수로 데이터 생성
+
+
 	for (index = 0; index < MAXIMUM; index++)
 	{
 		temp = (((long)rand() << 15) | rand()) % MAXIMUM; // 난수 생성 범위 강제로 늘리기(20비트까지 표현 가능)
@@ -58,7 +60,7 @@ void WriteDataToText(FILE *fp, int number)
 		//줄 정리
 		if (j == 10)
 		{
-			fprintf(fp,"\n");
+			fprintf(fp, "\n");
 			j = 0;
 		}
 	}

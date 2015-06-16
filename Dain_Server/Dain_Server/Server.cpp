@@ -5,6 +5,8 @@
 #include<stdio.h>
 #include<winsock2.h>
 #pragma comment(lib,"ws2_32.lib") //Winsock Library
+
+
 int main(int argc, char *argv[])
 {
 
@@ -15,6 +17,7 @@ int main(int argc, char *argv[])
 	char msg[100];
 
 	printf("\nInitialising Winsock...");
+	//에러 처리1
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		printf("Failed. Error Code : %d", WSAGetLastError());
@@ -23,11 +26,12 @@ int main(int argc, char *argv[])
 
 	printf("Initialised.\n");
 
-
+	//소켓 생성 불능 에러
 	if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
 	{
 		printf("Could not create socket : %d", WSAGetLastError());
 	}
+	//소켓 생성
 	printf("Socket created.\n");
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -53,9 +57,14 @@ int main(int argc, char *argv[])
 	}
 
 	puts("Connection accepted");
-	printf("Me: ");
-	gets(msg);
+	//문자를 계속 전송할 수 있도록 반복문 구성
+	while (1) {
+		printf("Me: ");
+		gets(msg);
+		//메시지를 클라이언트로 전송
+		send(new_socket, msg, strlen(msg), 0);
+	}
 
-	send(new_socket, msg, strlen(msg), 0);
+	//send(new_socket , msg , strlen(msg) , 0);
 	return 0;
 }
